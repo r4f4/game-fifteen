@@ -19,8 +19,17 @@ func printBoard(b *board) {
 	}
 }
 
+func printGameReplay(b *board, moves []direction) {
+	for _, dir := range moves {
+		fmt.Println(dir)
+		b.move(dir)
+		printBoard(b)
+	}
+}
+
 func main() {
 	generate := flag.Bool("random", false, "Generate a random board")
+	replay := flag.Bool("replay", false, "Play the game move by move")
 	flag.Parse()
 
 	var b board
@@ -56,7 +65,11 @@ func main() {
 		return
 	}
 	if sol := aStarSerial(&b); sol != nil {
-		fmt.Println(sol.moves)
+		if *replay {
+			printGameReplay(&b, sol.moves)
+		} else {
+			fmt.Println(sol.moves)
+		}
 	} else {
 		fmt.Println("Could not solve board")
 	}
