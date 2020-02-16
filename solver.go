@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"math"
 	"sort"
-	//"sync"
 	"container/heap"
 )
 
@@ -19,44 +18,22 @@ func (s *solution) String() string {
 }
 
 // A MinHeap implements heap.Interface and holds Solution items
-// It's safe to use in parallel
-type minHeap struct {
-	queue []*solution
-	//mux   sync.Mutex
-}
+type minHeap []*solution
 
-func (h minHeap) Len() int {
-	//h.mux.Lock()
-	//defer h.mux.Unlock()
-	return len(h.queue)
-}
+func (h minHeap) Len() int { return len(h) }
 
-func (h minHeap) Less(i, j int) bool {
-	//h.mux.Lock()
-	//defer h.mux.Unlock()
-	return h.queue[i].cost < h.queue[j].cost
-}
+func (h minHeap) Less(i, j int) bool { return h[i].cost < h[j].cost }
 
-func (h minHeap) Swap(i, j int) {
-	//h.mux.Lock()
-	//defer h.mux.Unlock()
-	h.queue[i], h.queue[j] = h.queue[j], h.queue[i]
-}
+func (h minHeap) Swap(i, j int) { h[i], h[j] = h[j], h[i] }
 
-func (h *minHeap) Push(x interface{}) {
-	//h.mux.Lock()
-	//defer h.mux.Unlock()
-	h.queue = append(h.queue, x.(*solution))
-}
+func (h *minHeap) Push(x interface{}) { *h = append(*h, x.(*solution)) }
 
 func (h *minHeap) Pop() interface{} {
-	//h.mux.Lock()
-	//defer h.mux.Unlock()
-	old := h.queue
+	old := *h
 	n := len(old)
 	item := old[n-1]
 	old[n-1] = nil // avoid memory leak
-	h.queue = old[0 : n-1]
+	*h = old[0 : n-1]
 	return item
 }
 
@@ -79,10 +56,9 @@ func manhattanDistance(b *board) int {
 }
 
 func aStarSerial(b *board) *solution {
-	h := &minHeap{queue: []*solution{}}
+	start := &solution{state: b, moves: []direction{}, cost: calcManhattanDistance(b)}
+	h := &minHeap{start}
 	heap.Init(h)
-	start := &solution{state: b, moves: []direction{}, cost: manhattanDistance(b)}
-	heap.Push(h, start)
 
 	explored := make(map[string]int)
 	explored[b.String()] = start.cost
