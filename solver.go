@@ -37,20 +37,25 @@ func (h *minHeap) Pop() interface{} {
 	return item
 }
 
+// Calculate the Manhattan distance of a tile with value `val` at index `idx`
+func manhattanDistance(val, idx int) int {
+	// Linear distance from where tile should be
+	diff := int(math.Abs(float64(val - 1 - idx)))
+	return (diff / size) + (diff % size) // # of rows + cols to move
+}
+
 // Calculates the cost of (possibly) solving the current Board's state
 // The cost is defined as `cost = moves + estimate`, where
 // `moves` is the number of moves made so far
 // `estimate` is the Manhattan Distance of moving the remaining out-of-place tiles
-func manhattanDistance(b *board) int {
+func calcManhattanDistance(b *board) int {
 	cost := 0
 	for i, tile := range b.tiles {
 		// Tile is in the right position
 		if tile == 0 || tile == i+1 {
 			continue
 		}
-		// Linear distance from where tile should be
-		diff := int(math.Abs(float64(tile - 1 - i)))
-		cost += (diff / size) + (diff % size) // # of rows + cols to move
+		cost += manhattanDistance(tile, i)
 	}
 	return cost
 }
@@ -73,6 +78,7 @@ func aStarSerial(b *board) *solution {
 		}
 
 		nMoves := len(sol.moves)
+		oldIdx := sol.state.spaceIdx
 		// Try moving in all possible directions
 		for _, dir := range []direction{left, right, up, down} {
 			// Do not undo the last move
@@ -84,7 +90,9 @@ func aStarSerial(b *board) *solution {
 				continue
 			}
 			str := sol.state.String()
-			copyCost := nMoves + 1 + manhattanDistance(sol.state)
+			tile := sol.state.tiles[oldIdx]
+			diff := manhattanDistance(tile, oldIdx) - manhattanDistance(tile, sol.state.spaceIdx)
+			copyCost := sol.cost + diff + 1 // one more move
 			if cost, ok := explored[str]; ok && copyCost > cost {
 				nIgnored++
 				continue
