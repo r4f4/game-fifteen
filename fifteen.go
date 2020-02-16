@@ -1,6 +1,11 @@
 package main
 
-import "fmt"
+import (
+	"os"
+	"fmt"
+	"flag"
+	"bufio"
+)
 
 // Print a board, one row per line; each row as an array
 func printBoard(b *board) {
@@ -15,14 +20,42 @@ func printBoard(b *board) {
 }
 
 func main() {
-	fmt.Println("Generating a random board:")
-	board := generateRandomBoard()
-	printBoard(&board)
-	if !solvable(&board) {
+	generate := flag.Bool("random", false, "Generate a random board")
+	flag.Parse()
+
+	var b board
+	if *generate {
+		fmt.Println("Generating a random board:")
+		b = generateRandomBoard()
+	} else {
+		var err error
+		reader := bufio.NewReader(os.Stdin)
+		tiles := [16]int{}
+		for i := 0; i < size; i++ {
+			idx := i * size
+			text, err := reader.ReadString('\n')
+			if err != nil {
+				fmt.Printf("error reading board: %v\n", err)
+				return
+			}
+			values := [4]int{}
+			fmt.Sscanf(text, "%d %d %d %d", &values[0], &values[1], &values[2], &values[3])
+			for j := 0; j < size; j++ {
+				tiles[idx + j] = values[j]
+			}
+		}
+		b, err = makeBoardFrom(tiles[:])
+		if err != nil || !b.isValid() {
+			fmt.Printf("invalid board supplied: %v\n", err)
+			return
+		}
+	}
+	printBoard(&b)
+	if !solvable(&b) {
 		fmt.Println("Impossible to solve board")
 		return
 	}
-	if sol := aStarSerial(&board); sol != nil {
+	if sol := aStarSerial(&b); sol != nil {
 		fmt.Println(sol.moves)
 	} else {
 		fmt.Println("Could not solve board")
