@@ -10,15 +10,15 @@ func TestBoardMoveDirection(t *testing.T) {
 	// Move all the way to the right
 	for i := 0; i < 3; i++ {
 		sPos = board.spaceIdx
-		target = board.tiles[sPos+1]
-		res = board.moveRight()
-		if !res || board.spaceIdx != sPos+1 || board.tiles[sPos] != target {
+		target = board.tiles[sPos+right]
+		res = board.move(right)
+		if !res || board.spaceIdx != sPos+right || board.tiles[sPos] != target {
 			t.Errorf("should have moved right and swapped values")
 		}
 	}
 
 	sPos = board.spaceIdx
-	res = board.moveRight()
+	res = board.move(right)
 	if res || board.spaceIdx != sPos {
 		t.Errorf("invalid move beyound board boundaries: Right")
 	}
@@ -26,15 +26,15 @@ func TestBoardMoveDirection(t *testing.T) {
 	// Move all the way down
 	for i := 0; i < 3; i++ {
 		sPos = board.spaceIdx
-		target = board.tiles[sPos+size]
-		res = board.moveDown()
-		if !res || board.spaceIdx != sPos+size || board.tiles[sPos] != target {
+		target = board.tiles[sPos+down]
+		res = board.move(down)
+		if !res || board.spaceIdx != sPos+down || board.tiles[sPos] != target {
 			t.Errorf("should have moved down")
 		}
 	}
 
 	sPos = board.spaceIdx
-	res = board.moveDown()
+	res = board.move(down)
 	if res || board.spaceIdx != sPos {
 		t.Errorf("invalid move beyound board boundaries: Down")
 	}
@@ -42,15 +42,15 @@ func TestBoardMoveDirection(t *testing.T) {
 	// Move all the way up
 	for i := 0; i < 3; i++ {
 		sPos = board.spaceIdx
-		target = board.tiles[sPos-size]
-		res = board.moveUp()
-		if !res || board.spaceIdx != sPos-size || board.tiles[sPos] != target {
+		target = board.tiles[sPos+up]
+		res = board.move(up)
+		if !res || board.spaceIdx != sPos+up || board.tiles[sPos] != target {
 			t.Errorf("should have moved up")
 		}
 	}
 
 	sPos = board.spaceIdx
-	res = board.moveUp()
+	res = board.move(up)
 	if res || board.spaceIdx != sPos {
 		t.Errorf("invalid move beyound board boundaries: Up")
 	}
@@ -58,38 +58,17 @@ func TestBoardMoveDirection(t *testing.T) {
 	// Move all the way left
 	for i := 0; i < 3; i++ {
 		sPos = board.spaceIdx
-		target = board.tiles[sPos-1]
-		res = board.moveLeft()
-		if !res || board.spaceIdx != sPos-1 || board.tiles[sPos] != target {
+		target = board.tiles[sPos+int(left)]
+		res = board.move(left)
+		if !res || board.spaceIdx != sPos+int(left) || board.tiles[sPos] != target {
 			t.Errorf("should have moved left")
 		}
 	}
 
 	sPos = board.spaceIdx
-	res = board.moveLeft()
+	res = board.move(left)
 	if res || board.spaceIdx != sPos {
 		t.Errorf("invalid move beyound board boundaries: Left")
-	}
-}
-
-func TestBoardMove(t *testing.T) {
-	for _, dir := range [...]direction{left, right, up, down} {
-		expected, _ := makeBoardFrom(tilesAlldirs)
-		switch dir {
-		case left:
-			expected.moveLeft()
-		case right:
-			expected.moveRight()
-		case up:
-			expected.moveUp()
-		case down:
-			expected.moveDown()
-		}
-		current, _ := makeBoardFrom(tilesAlldirs)
-		current.move(dir)
-		if current.spaceIdx != expected.spaceIdx {
-			t.Errorf("move and move%v should do the same", dir)
-		}
 	}
 }
 
