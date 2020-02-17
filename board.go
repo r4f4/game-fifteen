@@ -86,10 +86,10 @@ func (b *board) makeMove(dir int) bool {
 type direction int
 
 const (
-	left direction = iota
-	right
-	up
-	down
+	left direction = -1
+	right = 1
+	up = -size
+	down = size
 )
 
 var opposites = map[direction]direction{left: right, right: left, up: down, down: up}
@@ -112,37 +112,14 @@ func (d direction) String() string {
 // Convenience method to be used in loops
 func (b *board) move(d direction) bool {
 	switch d {
-	case left:
-		return b.moveLeft()
-	case right:
-		return b.moveRight()
-	case up:
-		return b.moveUp()
-	case down:
-		return b.moveDown()
+	case left, right:
+		if (b.spaceIdx / size) != ((b.spaceIdx + int(d)) / size) {
+			return false
+		}
+		fallthrough
+	case up, down:
+		return b.makeMove(int(d))
 	default:
 		return false
 	}
-}
-
-func (b *board) moveLeft() bool {
-	if (b.spaceIdx / size) != ((b.spaceIdx - 1) / size) {
-		return false
-	}
-	return b.makeMove(-1)
-}
-
-func (b *board) moveRight() bool {
-	if (b.spaceIdx / size) != ((b.spaceIdx + 1) / size) {
-		return false
-	}
-	return b.makeMove(1)
-}
-
-func (b *board) moveUp() bool {
-	return b.makeMove(-size)
-}
-
-func (b *board) moveDown() bool {
-	return b.makeMove(size)
 }
