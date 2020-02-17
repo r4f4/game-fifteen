@@ -95,6 +95,7 @@ func aStarSerial(b *board) *solution {
 			copyCost := sol.cost + diff + 1 // one more move
 			if cost, ok := explored[str]; ok && copyCost > cost {
 				nIgnored++
+				sol.state.move(opposites[dir])
 				continue
 			}
 			explored[str] = copyCost
